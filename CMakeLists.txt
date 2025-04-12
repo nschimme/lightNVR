@@ -32,6 +32,25 @@ set(MG_TLS_WOLFSSL 5)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -ffunction-sections -fdata-sections -Wl,--gc-sections -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -ffunction-sections -fdata-sections -Wl,--gc-sections -pthread")
 
+string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
+if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
+    add_compile_options(-ggdb3)
+
+    # improved debugging experience
+    add_compile_options(-fno-omit-frame-pointer -fno-optimize-sibling-calls)
+    add_compile_options(-fno-inline -fno-inline-functions)
+
+    # ASAN
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+
+    # UBSAN
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_compile_options(-fsanitize=undefined)
+        add_link_options(-fsanitize=undefined)
+    endif()
+endif()
+
 # Option to build for embedded A1 device
 option(EMBEDDED_A1_DEVICE "Build for embedded A1 device with limited memory" OFF)
 if(EMBEDDED_A1_DEVICE)
